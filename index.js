@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
 
 // criando a rota para lista de todos os jogos
 app.get("/jogos", (req, res) => {
-    res.send(jogos);
+    res.json(jogos);
 });
 
 // criando a rota para inserir jogos
@@ -45,7 +45,7 @@ app.post("/jogos", (req, res) =>{
 app.get("/jogos/:idJogo", (req, res) =>{
     const id = +req.params.idJogo;
     const jogo = jogos.find((jogo) => jogo.id === id);
-    !jogo ? res.status(404).send({ error: "Jogo não existe."}) : res.send({jogo});
+    !jogo ? res.status(404).send({ error: "Jogo não existe."}) : res.json({jogo});
 });
 
 // criando a rota para editar um jogo
@@ -58,7 +58,7 @@ app.put("/jogos/:id", (req, res) =>{
 
 // criando a rota para deletar um jogo
 app.delete("/jogos/:id", (req, res) =>{
-    const id = req.params.id -1;
+    const id = +req.params.id -1;
     delete jogos[id];
     res.send("Jogo deletado com sucesso!")
 });
