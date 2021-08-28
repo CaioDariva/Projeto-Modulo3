@@ -8,6 +8,12 @@ const port = 3000;
 
 const jogos = [];
 
+const getJogosValidos = () => jogos.filter(Boolean);
+const getJogoById = id => getJogosValidos().find(jogo => jogo.id === id);
+const getJogoIndexById = id => getJogosValidos().findIndex(jogo => jogo.id === id);
+
+
+
 // criando rota home "/"
 app.get("/", (req, res) => {
     res.status(200).send("Jogos do Caio!");
@@ -20,7 +26,7 @@ app.get("/jogos", (req, res) => {
 
 // criando a rota para inserir jogos
 app.post("/jogos", (req, res) =>{
-    jogo = req.body;
+    const jogo = req.body;
 
     // validação do jogo que será acrescentado
     if (!jogo || !jogo.nome || !jogo.imagem) {
@@ -50,17 +56,42 @@ app.get("/jogos/:idJogo", (req, res) =>{
 
 // criando a rota para editar um jogo
 app.put("/jogos/:id", (req, res) =>{
-    const id = +req.params.id -1;
-    const jogo = req.body.jogo;
-    jogos[id] = jogo;
-    res.send("Jogo alterado com sucesso!");
+    const id = +req.params.id;
+
+    const jogoIndex = getJogoIndexById(id);
+    
+    if(jogoIndex < 0) {
+        res.status(404).send({error: "Jogo não encontrado"})
+    };
+
+    const jogoAlterado = req.body;
+
+    if(!jogoAlterado || !jogoAlterado.nome || !jogoAlterado.imagem){
+        res.status(400).send({ error: "Alteração inválida!" });
+        return;
+    };
+
+    const jogo = getJogoById(id);
+    jogoAlterado.id = jogo.id;
+
+    jogos[jogoIndex] = jogoAlterado;
+
+    res.send("Filme alterado com sucesso!")
 });
 
 // criando a rota para deletar um jogo
 app.delete("/jogos/:id", (req, res) =>{
-    const id = +req.params.id -1;
-    delete jogos[id];
-    res.send("Jogo deletado com sucesso!")
+    const id = +req.params.id;
+    
+    const jogoIndex = getJogoIndexById(id);
+    
+    if(jogoIndex < 0) {
+        res.status(404).send({error: "Jogo não encontrado"})
+    };
+
+    jogos.splice(jogoIndex, 1);
+
+    res.send("Jogo deletado!")
 });
 
 app.listen(port, () => {
